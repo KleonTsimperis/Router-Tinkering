@@ -7,6 +7,8 @@ import {
   withRouter,
   Switch
 } from "react-router-dom";
+import RenderWithoutRoute from './RenderWithoutRoute';
+import PlayerApi from './api';
 
 class App extends Component {
   render() {
@@ -19,6 +21,7 @@ class App extends Component {
             <li><Link to='/Info'> Info </Link></li>   
             <li><Link to='/Protected'> Protected </Link></li>
             <li><Link to='/Admin'>Admin</Link></li>
+            <li><Link to='/Tornadoes'>Tornadoes</Link></li>
           </ul>
         <Switch>         
           <Route exact path='/' component={Home}/>
@@ -27,6 +30,7 @@ class App extends Component {
           <Route path='/Login' component={Login}/>
           <ProtectedRoute path='/Protected' component={Protected}/>
           <AdminRoute path='/Admin' component={Admin}/>
+          <Route path='/Tornadoes' component={Tornadoes} />
         </Switch>
         </div>
       </Router>
@@ -34,9 +38,52 @@ class App extends Component {
   }
 }
 
+const Home = () => {
+  return (
+  <div>
+    Home Page
+  </div>
+  )
+};
+
+const Tornadoes = ({match}) => (
+  <div>
+    <ul>
+      <li>
+        <Link to={`${match.path}/roster`}>Roster</Link>
+      </li>
+      <li>
+        <Link to={`${match.path}/schedule`}>Schedule</Link>
+      </li>
+    </ul>
+    <Route path={`${match.url}/roster`} component={Roster} />
+    <Route path={`${match.url}/schedule`} component={Schedule}/>
+  </div>
+);
+
+const Roster = ({match}) => (
+  <div>
+    <Switch>
+      <Route exact path={`${match.url}`} component={FullRoster} />
+      <Route path={`${match.url}/:id`} component={Player} />
+    </Switch>
+  </div>
+)
+
+const FullRoster = ({match}) => {
+  return(
+    <div>
+      <ul>
+        {PlayerApi.players.map(player => <li><Link to={`${match.path}/${player.name}`} >{`${player.name}`}</Link></li> )}
+      </ul>
+    </div>
+  );
+}
+
+const Schedule = () => <div>This is the schedule</div>
+const Player = ({match}) => <div>{`these are the stats for ${match.params.id}`}</div>
 
 
-const Home = () => <div> Home </div>
 
 const About = ({match}) => {
   return(
@@ -48,6 +95,7 @@ const About = ({match}) => {
       <Route exact path={`${match.path}`} render={() => <Redirect to={`${match.path}/me`} />} />
       <Route path={`${match.path}/me`} render={() => <div>About me</div>} />
       <Route path={`${match.path}/you`} render={() => <div>About you</div>} />
+      <RenderWithoutRoute />
     </div>
   )
 }
